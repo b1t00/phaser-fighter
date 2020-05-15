@@ -1,6 +1,8 @@
 let cursors;
 let leoFighter;
 
+let blobFighter;
+
 
 let doubleJump = false;
 let cursorDown = false;
@@ -13,28 +15,6 @@ class Level1 extends Phaser.Scene {
     }
     
 
-    preload() {
-
-        this.load.image('bg_level1', 'assets/backgrounds/bg_level1.png');
-
-        // * ----------------- LEVEL 1 MAP ----------------------------------- *
-
-        this.load.image('level1-tiles', 'assets/tilesets/level1/level1-tiles.png'); // tileSet png
-
-        this.load.tilemapTiledJSON('level1-map', 'assets/tilemaps/level1/level1-map.json'); // tilemap json
-
-        // * ----------------- Player ---------------------------------------- *
-
-        this.load.spritesheet('leoFighter', 'assets/fighters/leoFighter/LeoFighter.png', {
-            frameWidth: 39*2,
-            frameHeight: 54*2,
-        });
-
-        this.load.spritesheet('leoFighterKick', 'assets/fighters/leoFighter/LeoFighter_kick.png', {
-            frameWidth: 84,
-            frameHeight: 105,
-        });
-    }
 
     create() {
 
@@ -56,22 +36,31 @@ class Level1 extends Phaser.Scene {
         map.createDynamicLayer('ohnecollision', tileset, 0, 0);
         ground.setCollisionByExclusion(-1, true);
 
-        // * ------------------ Player ----------------------------------------- *
+       // ------------------->>>>>> FIGHTERS <<<<<<<<---------------------------------- //
 
         leoFighter = this.physics.add.sprite(400, 100, 'leoFighter');
+        leoFighter.name = 'leoFighter';
+        blobFighter = this.physics.add.sprite(600,100, 'blobFighter');
+
+
+        // ** --------------------- Collider -------------------------------------- ** //
         // leoFighter.setCollideWorldBounds(true);
 
         this.physics.add.collider(leoFighter, ground);
+        this.physics.add.collider(blobFighter, ground);
+        
+        this.physics.add.collider(blobFighter, leoFighter);
+
     }
 
-
-
     update() {
-
-        moveLogic();
+        blobFighter.anims.play('blobStop',true);
+        moveLogic(leoFighter);
     }
 }
 function createAnims(scene) {
+    // * ---------------------- leoFighter ---------------------------------------- *
+
     scene.anims.create({
         key: 'leoStop',
         frames: scene.anims.generateFrameNumbers('leoFighter', {
@@ -84,7 +73,7 @@ function createAnims(scene) {
     });
 
     scene.anims.create({
-        key: 'leoWalk',
+        key: 'leoFighterWalk',
         frames: scene.anims.generateFrameNumbers('leoFighter', {
             start: 5,
             end: 7
@@ -112,47 +101,40 @@ function createAnims(scene) {
         frameRate: 15,
         repeat: 1,
     });
+        // * ---------------------- blobFighter ---------------------------------------- *
+
+        scene.anims.create({
+            key: 'blobStop',
+            frames: scene.anims.generateFrameNumbers('blobFighter', {
+                start: 0,
+                end: 3
+            }),
+            frameRate: 5,
+            repeat: -1,
+            yoyo: true
+        });
+
+        scene.anims.create({
+            key: 'blobJump',
+            frames: [{
+                key: 'blobFighter',
+                frame: 4
+            }],
+            frameRate: 1
+        });
+
+        scene.anims.create({
+            key: 'blobGetHit',
+            frames: scene.anims.generateFrameNumbers('blobFighter', {
+                start: 0,
+                end: 3
+            }),
+            frameRate: 5,
+            repeat: -1,
+            yoyo: true
+        });
 }
 
-function moveLogic(){
-    if (cursors.left.isDown) {
-        leoFighter.setVelocityX(-160);
-        leoFighter.setFlipX(true)
-        leoFighter.anims.play('leoWalk', true);
-    }
-    else if (cursors.right.isDown) {
-        leoFighter.setVelocityX(160);
-        leoFighter.setFlipX(false)
-        leoFighter.anims.play('leoWalk', true);
-    }
-    else if(cursors.space.isDown){
-        leoFighter.anims.play('leoKick',true);
-    }else {
-        leoFighter.setVelocityX(0);
-        leoFighter.anims.play('leoStop', true);
-    }
 
-
-    if (cursors.up.isDown && (leoFighter.body.onWall() || leoFighter.body.onFloor()) && !cursorDown) {
-        leoFighter.setVelocityY(-200);
-        cursorDown = true;
-    }
-    else if (cursors.up.isDown && !doubleJump && !cursorDown) {
-        leoFighter.setVelocityY(-160);
-        doubleJump = true;
-    }
-
-    if (cursors.up.isUp) {
-        cursorDown = false;
-    }
-    if (leoFighter.body.onFloor()) {
-        doubleJump = false;
-       
-    } else if(cursors.space.isDown ){
-        leoFighter.anims.play('leoKick',true);
-    }else{
-        leoFighter.anims.play('leoJump');
-    }
-}
 
 

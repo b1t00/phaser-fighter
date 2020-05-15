@@ -14,7 +14,7 @@ var config = {
     render: {
         pixelArt: true,
     },
-    scene: [Level1]
+    scene: [LoadScene,Level1]
 };
 
 var game = new Phaser.Game(config);
