@@ -21,6 +21,9 @@ var game = new Phaser.Game(config);
 
 // canvas width:        960 
 // canvas height:       640
+
 // GameWidth:           800
 // GameHeight:          640
+
+// tilesize:            64
 
